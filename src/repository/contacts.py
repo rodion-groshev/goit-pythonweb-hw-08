@@ -1,5 +1,7 @@
+from datetime import date, timedelta
+
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import select
+from sqlalchemy import select, func
 from src.database.models import Contact
 from src.schemas import ContactSchema
 
@@ -17,6 +19,32 @@ class ContactRepository:
         stmt = select(Contact).filter_by(id=contact_id)
         contact = await self.db.execute(stmt)
         return contact.scalar_one_or_none()
+
+    async def get_contact_by_first_name(self, contact_name: str) -> Contact | None:
+        stmt = select(Contact).filter_by(first_name=contact_name)
+        contact = await self.db.execute(stmt)
+        return contact.scalar_one_or_none()
+
+    async def get_contact_by_second_name(self, contact_name: str) -> Contact | None:
+        stmt = select(Contact).filter_by(second_name=contact_name)
+        contact = await self.db.execute(stmt)
+        return contact.scalar_one_or_none()
+
+    async def get_contact_by_email(self, contact_email: str) -> Contact | None:
+        stmt = select(Contact).filter_by(email=contact_email)
+        contact = await self.db.execute(stmt)
+        return contact.scalar_one_or_none()
+
+    async def get_upcoming_birthday(self):
+        today = date.today()
+        end_date = today + timedelta(days=7)
+        stmt = select(Contact).where(
+            func.to_char(Contact.birthday, "MM-DD").between(
+                today.strftime("%m-%d"), end_date.strftime("%m-%d")
+            )
+        )
+        contact = await self.db.execute(stmt)
+        return contact.scalars().all()
 
     async def create_contact(self, body: ContactSchema):
         contact = Contact(**body.model_dump(exclude_unset=True))

@@ -1,5 +1,5 @@
 from sqlalchemy.ext.asyncio import AsyncSession
-
+from watchfiles import awatch
 
 from src.repository.contacts import ContactRepository
 from src.schemas import ContactSchema
@@ -17,6 +17,18 @@ class ContactService:
 
     async def get_contact(self, contact_id: int):
         return await self.contact_repo.get_contact_by_id(contact_id)
+
+    async def get_contact_first_name(self, contact_name: str):
+        return await self.contact_repo.get_contact_by_first_name(contact_name)
+
+    async def get_contact_second_name(self, contact_name: str):
+        return await self.contact_repo.get_contact_by_second_name(contact_name)
+
+    async def get_contact_email(self, contact_email: str):
+        return await self.contact_repo.get_contact_by_email(contact_email)
+
+    async def get_upcoming_birthday(self):
+        return await self.contact_repo.get_upcoming_birthday()
 
     async def update_contact(self, contact_id: int, body: ContactSchema):
         return await self.contact_repo.update_contact(contact_id, body)
